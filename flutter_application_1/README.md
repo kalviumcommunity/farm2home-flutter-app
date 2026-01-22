@@ -1,16 +1,68 @@
-# flutter_application_1
+Concept 1
 
-A new Flutter project.
+Flutter Widget Architecture & Performance
 
-## Getting Started
+Flutter uses a widget-based architecture and Dart’s reactive rendering model to deliver smooth UI performance across Android and iOS. Instead of redrawing the entire screen, Flutter rebuilds only the widgets that change, ensuring fast and consistent performance on both platforms.
 
-This project is a starting point for a Flutter application.
+StatelessWidget vs StatefulWidget (App Example)
 
-A few resources to get you started if this is your first Flutter project:
+StatelessWidget
+Used for static UI that doesn’t change, such as headers or labels.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Text("Farm2Home")
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+
+These widgets are built once and reused, making them lightweight and efficient.
+
+StatefulWidget
+Used for dynamic UI, such as cart count or task list updates.
+
+setState(() {
+  itemCount++;
+});
+
+
+Calling setState() rebuilds only the affected widget subtree, not the whole screen.
+
+Case Study: “The Laggy To-Do App”
+
+The app lagged because setState() was called at a high-level widget, causing unnecessary rebuilds of deeply nested widgets, especially noticeable on iOS.
+
+Solution
+
+By managing state locally and updating only specific widgets (like the task list), Flutter avoids full UI redraws and maintains a smooth frame rate.
+
+Why Flutter Stays Smooth
+
+Reactive rendering updates only what changes
+
+Dart async model prevents UI blocking
+
+Single UI codebase ensures consistent performance on Android and iOS
+
+Each UI interaction feels instant because Flutter rebuilds only what’s necessary, not everything.
+
+
+
+
+
+Concept 2 
+Learnings:
+
+## Firebase Setup
+- Created Firebase project
+- Connected Flutter using FlutterFire CLI
+- Added firebase_core, firebase_auth, cloud_firestore
+
+## Features Implemented
+- Email/Password Authentication
+- Real-time Firestore database
+- Live task updates across devices
+
+## Real-Time Sync
+Firestore streams update UI instantly without manual refresh.
+
+## Reflection
+Firebase simplified backend logic by providing authentication,
+database, and storage without custom servers.
+
