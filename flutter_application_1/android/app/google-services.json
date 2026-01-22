@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "40368658651",
+    "project_id": "f2h-demo",
+    "storage_bucket": "f2h-demo.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:40368658651:android:1a9f42ab61b559811d14fe",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC9sdEi0GT7LzgkZsnMNGEBIKbhFKjyZFo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
