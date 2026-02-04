@@ -13,6 +13,7 @@ class _LoginPageState extends State<LoginPage> {
   final passwordController = TextEditingController();
   bool isLoading = false;
   bool isSignUp = false;
+  bool obscurePassword = true;
 
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
@@ -38,9 +39,12 @@ class _LoginPageState extends State<LoginPage> {
           MaterialPageRoute(builder: (_) => HomePage()),
         );
       }
+    } on FirebaseAuthException catch (e) {
+      setState(() => isLoading = false);
+      showError('Google Sign In failed: ${e.message}');
     } catch (e) {
       setState(() => isLoading = false);
-      showError('Google Sign In failed: ${e.toString()}');
+      showError('An unexpected error occurred');
     }
   }
 
@@ -49,6 +53,12 @@ class _LoginPageState extends State<LoginPage> {
       showError('Please fill all fields');
       return;
     }
+    
+    if (passwordController.text.length < 6) {
+      showError('Password must be at least 6 characters');
+      return;
+    }
+
     setState(() => isLoading = true);
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -61,9 +71,12 @@ class _LoginPageState extends State<LoginPage> {
           MaterialPageRoute(builder: (_) => HomePage()),
         );
       }
+    } on FirebaseAuthException catch (e) {
+      setState(() => isLoading = false);
+      showError(e.message ?? 'Sign up failed');
     } catch (e) {
       setState(() => isLoading = false);
-      showError(e.toString());
+      showError('An unexpected error occurred');
     }
   }
 
@@ -72,6 +85,7 @@ class _LoginPageState extends State<LoginPage> {
       showError('Please fill all fields');
       return;
     }
+    
     setState(() => isLoading = true);
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -84,9 +98,12 @@ class _LoginPageState extends State<LoginPage> {
           MaterialPageRoute(builder: (_) => HomePage()),
         );
       }
+    } on FirebaseAuthException catch (e) {
+      setState(() => isLoading = false);
+      showError(e.message ?? 'Sign in failed');
     } catch (e) {
       setState(() => isLoading = false);
-      showError(e.toString());
+      showError('An unexpected error occurred');
     }
   }
 
@@ -95,6 +112,7 @@ class _LoginPageState extends State<LoginPage> {
       SnackBar(
         content: Text(message),
         backgroundColor: Colors.red,
+        duration: Duration(seconds: 3),
       ),
     );
   }
@@ -113,9 +131,9 @@ class _LoginPageState extends State<LoginPage> {
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              padding: EdgeInsets.all(24),
+              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: Card(
-                elevation: 8,
+                elevation: 12,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
@@ -129,7 +147,7 @@ class _LoginPageState extends State<LoginPage> {
                         size: 80,
                         color: Colors.green,
                       ),
-                      SizedBox(height: 16),
+                      SizedBox(height: 20),
                       Text(
                         'Farm2Home',
                         style: TextStyle(
@@ -142,38 +160,73 @@ class _LoginPageState extends State<LoginPage> {
                       Text(
                         'Fresh from Farm to Your Home',
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 14,
                           color: Colors.grey.shade600,
                         ),
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(height: 32),
+                      // Email Field
                       TextField(
                         controller: emailController,
+                        enabled: !isLoading,
                         decoration: InputDecoration(
                           labelText: 'Email',
-                          prefixIcon: Icon(Icons.email),
+                          prefixIcon: Icon(Icons.email, color: Colors.green),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.green.shade200),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.green, width: 2),
                           ),
                         ),
                         keyboardType: TextInputType.emailAddress,
                       ),
                       SizedBox(height: 16),
+                      // Password Field
                       TextField(
                         controller: passwordController,
+                        enabled: !isLoading,
+                        obscureText: obscurePassword,
                         decoration: InputDecoration(
                           labelText: 'Password',
-                          prefixIcon: Icon(Icons.lock),
+                          prefixIcon: Icon(Icons.lock, color: Colors.green),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              obscurePassword ? Icons.visibility_off : Icons.visibility,
+                              color: Colors.green,
+                            ),
+                            onPressed: () => setState(() => obscurePassword = !obscurePassword),
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.green.shade200),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.green, width: 2),
+                          ),
                         ),
-                        obscureText: true,
                       ),
-                      SizedBox(height: 24),
+                      SizedBox(height: 28),
+                      // Main Action Button
                       if (isLoading)
-                        CircularProgressIndicator()
+                        SizedBox(
+                          height: 50,
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                            ),
+                          ),
+                        )
                       else ...[
                         SizedBox(
                           width: double.infinity,
@@ -186,53 +239,78 @@ class _LoginPageState extends State<LoginPage> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
+                              elevation: 5,
                             ),
                             child: Text(
                               isSignUp ? 'Sign Up' : 'Sign In',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
-                        SizedBox(height: 12),
+                        SizedBox(height: 14),
+                        // Toggle Sign Up / Sign In
                         TextButton(
                           onPressed: () {
-                            setState(() => isSignUp = !isSignUp);
+                            setState(() {
+                              isSignUp = !isSignUp;
+                              emailController.clear();
+                              passwordController.clear();
+                            });
                           },
                           child: Text(
                             isSignUp
                                 ? 'Already have an account? Sign In'
                                 : 'Don\'t have an account? Sign Up',
+                            style: TextStyle(
+                              color: Colors.green,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
-                        SizedBox(height: 16),
+                        SizedBox(height: 18),
+                        // Divider
                         Row(
                           children: [
-                            Expanded(child: Divider()),
+                            Expanded(child: Divider(color: Colors.grey.shade300)),
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 16),
-                              child: Text('OR'),
+                              child: Text(
+                                'OR',
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                             ),
-                            Expanded(child: Divider()),
+                            Expanded(child: Divider(color: Colors.grey.shade300)),
                           ],
                         ),
-                        SizedBox(height: 16),
+                        SizedBox(height: 18),
+                        // Google Sign In Button
                         SizedBox(
                           width: double.infinity,
                           height: 50,
                           child: OutlinedButton.icon(
                             onPressed: signInWithGoogle,
-                            icon: Image.network(
-                              'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg',
+                            icon: Image.asset(
+                              'assets/google_logo.png',
                               height: 24,
                               errorBuilder: (context, error, stackTrace) =>
                                   Icon(Icons.login, color: Colors.red),
                             ),
                             label: Text(
                               'Continue with Google',
-                              style: TextStyle(fontSize: 16),
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                              ),
                             ),
                             style: OutlinedButton.styleFrom(
-                              side: BorderSide(color: Colors.grey.shade400),
+                              side: BorderSide(color: Colors.grey.shade300, width: 1.5),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
